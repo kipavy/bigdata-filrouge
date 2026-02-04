@@ -1,4 +1,4 @@
-name: CD Pipeline - Deploy
+name: CD Pipeline - Build & Push
 
 on:
   push:
@@ -6,15 +6,6 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Target environment'
-        required: true
-        default: 'staging'
-        type: choice
-        options:
-          - staging
-          - production
 
 env:
   REGISTRY: ghcr.io
@@ -32,6 +23,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -83,143 +77,22 @@ jobs:
         with:
           context: .
           file: Dockerfile.app
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # Deploy to staging
-  deploy-staging:
-    name: Deploy to Staging
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'staging'
-    environment:
-      name: staging
-      url: http://staging.example.com:8080
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Deploy to staging server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.STAGING_HOST }}
-          username: ${{ secrets.STAGING_USER }}
-          key: ${{ secrets.STAGING_SSH_KEY }}
-          script: |
-            cd /opt/bidata
-
-            # Pull latest code
-            git pull origin main
-
-            # Pull latest images
-            docker compose pull
-
-            # Restart services with zero-downtime
-            docker compose up -d --remove-orphans
-
-            # Wait for health checks
-            sleep 30
-
-            # Verify services are healthy
-            docker compose ps
-
-            # Clean up old images
-            docker image prune -f
-
-      - name: Verify deployment
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.STAGING_HOST }}
-          username: ${{ secrets.STAGING_USER }}
-          key: ${{ secrets.STAGING_SSH_KEY }}
-          script: |
-            # Check Airflow webserver
-            curl -f http://localhost:8080/health || exit 1
-
-            # Check Grafana
-            curl -f http://localhost:3000/api/health || exit 1
-
-            echo "Staging deployment verified!"
-
-  # Deploy to production (manual approval required)
-  deploy-production:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: [build-and-push, deploy-staging]
-    if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.environment == 'production'
-    environment:
-      name: production
-      url: http://production.example.com:8080
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Deploy to production server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.PRODUCTION_HOST }}
-          username: ${{ secrets.PRODUCTION_USER }}
-          key: ${{ secrets.PRODUCTION_SSH_KEY }}
-          script: |
-            cd /opt/bidata
-
-            # Backup current state
-            docker compose exec -T postgres pg_dump -U airflow airflow > /backups/backup_$(date +%Y%m%d_%H%M%S).sql || true
-
-            # Pull latest code
-            git pull origin main
-
-            # Pull latest images
-            docker compose pull
-
-            # Rolling restart
-            docker compose up -d --remove-orphans
-
-            # Wait for health checks
-            sleep 60
-
-            # Verify services
-            docker compose ps
-
-            # Cleanup
-            docker image prune -f
-
-      - name: Verify production deployment
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.PRODUCTION_HOST }}
-          username: ${{ secrets.PRODUCTION_USER }}
-          key: ${{ secrets.PRODUCTION_SSH_KEY }}
-          script: |
-            # Health checks
-            curl -f http://localhost:8080/health || exit 1
-            curl -f http://localhost:3000/api/health || exit 1
-
-            # Verify DAGs are loaded
-            docker compose exec -T airflow-webserver airflow dags list | grep velib_etl || exit 1
-
-            echo "Production deployment verified!"
-
-      - name: Notify on success
-        if: success()
+      - name: Summary
         run: |
-          echo "Production deployment successful for tag ${{ github.ref_name }}"
-          # Add Slack/Discord notification here if needed
-
-      - name: Rollback on failure
-        if: failure()
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.PRODUCTION_HOST }}
-          username: ${{ secrets.PRODUCTION_USER }}
-          key: ${{ secrets.PRODUCTION_SSH_KEY }}
-          script: |
-            cd /opt/bidata
-            git checkout HEAD~1
-            docker compose up -d
-            echo "Rolled back to previous version"
+          echo "## Docker Image Built Successfully 🐳" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Platforms:** linux/amd64, linux/arm64" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
