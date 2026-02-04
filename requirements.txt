@@ -1,0 +1,8 @@
+# Production dependencies
+requests>=2.31.0
+pymongo>=4.6.0
+psycopg2-binary>=2.9.9
+python-dotenv>=1.0.0
+
+# Airflow (version matching docker-compose)
+apache-airflow==2.10.0
