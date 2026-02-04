@@ -99,10 +99,14 @@ services:
   # =========================
   airflow-init:
     <<: *airflow-common
+    user: "0:0"
     entrypoint: /bin/bash
     command:
       - -c
       - |
+        mkdir -p /opt/airflow/logs
+        chown -R "${AIRFLOW_UID:-50000}:0" /opt/airflow/logs
+
         airflow db migrate
         airflow users create \
           --username airflow \
@@ -226,7 +230,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/json/velib-dashboard.json
     volumes:
-      - ./monitoring/grafana/data:/var/lib/grafana
+      - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
     depends_on:
@@ -237,3 +241,4 @@ services:
 volumes:
   postgres_data:
   mongodb_data:
+  grafana_data:

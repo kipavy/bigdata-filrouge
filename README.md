@@ -92,7 +92,7 @@ bidata/
    ```
 
 4. **Accéder aux interfaces**
-   - Airflow: http://localhost:8080 (admin/admin)
+   - Airflow: http://localhost:8080 (airflow/airflow)
    - Grafana: http://localhost:3000 (admin/admin)
 
 ## Configuration
