@@ -1,0 +1,593 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 5000 },
+              { "color": "green", "value": 10000 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": { "type": "postgres" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT SUM(num_bikes_available) as total_bikes\nFROM station_availability\nWHERE ingested_at = (SELECT MAX(ingested_at) FROM station_availability);",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Bikes Available",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 10000 },
+              { "color": "green", "value": 20000 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": { "type": "postgres" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT SUM(num_docks_available) as total_docks\nFROM station_availability\nWHERE ingested_at = (SELECT MAX(ingested_at) FROM station_availability);",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Docks Available",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": { "type": "postgres" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*) as total_stations FROM stations;",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Stations",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "purple", "value": null }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": { "type": "postgres" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(DISTINCT ingested_at) as data_points FROM station_availability;",
+          "refId": "A"
+        }
+      ],
+      "title": "Data Collections",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "last"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": { "type": "postgres" },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  ingested_at as time,\n  SUM(num_bikes_available) as \"Bikes Available\",\n  SUM(num_bikes_mechanical) as \"Mechanical\",\n  SUM(num_bikes_ebike) as \"E-Bikes\"\nFROM station_availability\nWHERE ingested_at >= NOW() - INTERVAL '24 hours'\nGROUP BY ingested_at\nORDER BY ingested_at;",
+          "refId": "A"
+        }
+      ],
+      "title": "Bike Availability Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "last"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": { "type": "postgres" },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  ingested_at as time,\n  SUM(num_docks_available) as \"Docks Available\"\nFROM station_availability\nWHERE ingested_at >= NOW() - INTERVAL '24 hours'\nGROUP BY ingested_at\nORDER BY ingested_at;",
+          "refId": "A"
+        }
+      ],
+      "title": "Dock Availability Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 12 },
+      "id": 7,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": ["value", "percent"]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": { "type": "postgres" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  COALESCE(s.arrondissement, 'Unknown') as arrondissement,\n  SUM(a.num_bikes_available) as bikes\nFROM station_availability a\nJOIN stations s ON a.station_id = s.station_id\nWHERE a.ingested_at = (SELECT MAX(ingested_at) FROM station_availability)\nGROUP BY s.arrondissement\nORDER BY bikes DESC\nLIMIT 15;",
+          "refId": "A"
+        }
+      ],
+      "title": "Bikes by Area",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "bikes_available" },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "gauge"
+                }
+              },
+              { "id": "max", "value": 50 }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 12 },
+      "id": 8,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "bikes_available" }]
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": { "type": "postgres" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  s.name as station_name,\n  s.arrondissement,\n  a.num_bikes_available as bikes_available,\n  a.num_bikes_mechanical as mechanical,\n  a.num_bikes_ebike as ebike,\n  a.num_docks_available as docks_available,\n  s.capacity\nFROM station_availability a\nJOIN stations s ON a.station_id = s.station_id\nWHERE a.ingested_at = (SELECT MAX(ingested_at) FROM station_availability)\nORDER BY a.num_bikes_available DESC\nLIMIT 20;",
+          "refId": "A"
+        }
+      ],
+      "title": "Top Stations by Availability",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 20 },
+      "id": 9,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.6,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": { "type": "postgres" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  COALESCE(s.arrondissement, 'Unknown') as area,\n  SUM(a.num_bikes_available) as \"Bikes\",\n  SUM(a.num_docks_available) as \"Docks\"\nFROM station_availability a\nJOIN stations s ON a.station_id = s.station_id\nWHERE a.ingested_at = (SELECT MAX(ingested_at) FROM station_availability)\nGROUP BY s.arrondissement\nORDER BY SUM(a.num_bikes_available) DESC\nLIMIT 15;",
+          "refId": "A"
+        }
+      ],
+      "title": "Availability by Area",
+      "type": "barchart"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["velib", "bigdata"],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Velib Real-Time Dashboard",
+  "uid": "velib-realtime",
+  "version": 1,
+  "weekStart": ""
+}
