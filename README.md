@@ -4,23 +4,18 @@ Pipeline ETL (Extract, Transform, Load) pour les données temps réel du systèm
 
 ## Architecture
 
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   Velib API     │────▶│    MongoDB      │────▶│   PostgreSQL    │
-│  (OpenDataSoft) │     │   (Data Lake)   │     │ (Data Warehouse)│
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-                                │
-                    ┌───────────┴───────────┐
-                    ▼                       ▼
-            ┌─────────────┐         ┌─────────────┐
-            │   Promtail  │────────▶│    Loki     │
-            │   (Logs)    │         │ (Agrégation)│
-            └─────────────┘         └──────┬──────┘
-                                           │
-                                    ┌──────▼──────┐
-                                    │   Grafana   │
-                                    │ (Dashboard) │
-                                    └─────────────┘
+```mermaid
+flowchart TB
+    A["Velib API<br>(OpenDataSoft)"]
+    B["MongoDB<br>(Data Lake)"]
+    C["PostgreSQL<br>(Data Warehouse)"]
+
+    A --> B
+    B --> C
+
+    B --> D["Promtail<br>(Logs)"]
+    D --> E["Loki<br>(Agrégation)"]
+    E --> F["Grafana<br>(Dashboard)"]
 ```
 
 ## Stack Technique
