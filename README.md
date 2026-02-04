@@ -79,8 +79,8 @@ bidata/
 
 1. **Cloner le repository**
    ```bash
-   git clone <repository-url>
-   cd bidata
+   git clone https://github.com/kipavy/bigdata-filrouge
+   cd bigdata-filrouge
    ```
 
 2. **Configurer l'environnement**
