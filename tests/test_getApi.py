@@ -83,7 +83,7 @@ class TestFetchVelibData:
             status=503,
         )
 
-        with pytest.raises(Exception):
+        with pytest.raises(requests.exceptions.HTTPError):
             fetch_velib_data()
 
 

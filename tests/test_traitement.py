@@ -6,16 +6,13 @@ import sys
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from traitement import (
-    get_mongo_client,
     get_postgres_connection,
-    transform_data,
-    load_stations_to_postgres,
     load_availability_to_postgres,
+    load_stations_to_postgres,
+    transform_data,
 )
 
 

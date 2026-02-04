@@ -2,8 +2,9 @@
 getApi.py - Extract data from Velib OpenDataSoft API and store in MongoDB (Data Lake)
 """
 import os
-import requests
 from datetime import datetime
+
+import requests
 from pymongo import MongoClient
 
 

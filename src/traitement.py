@@ -3,9 +3,10 @@ traitement.py - Transform data from MongoDB and load into PostgreSQL
 """
 import os
 from datetime import datetime
-from pymongo import MongoClient
+
 import psycopg2
 from psycopg2.extras import execute_values
+from pymongo import MongoClient
 
 
 def get_mongo_client():
@@ -128,7 +129,7 @@ def transform_data(raw_data: dict) -> tuple:
         if duedate:
             try:
                 last_reported = datetime.fromisoformat(duedate.replace("+00:00", ""))
-            except:
+            except ValueError:
                 last_reported = datetime.utcnow()
         else:
             last_reported = datetime.utcnow()
