@@ -1,0 +1,211 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  PYTHON_VERSION: "3.10"
+
+jobs:
+  lint:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-lint-${{ hashFiles('requirements-dev.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-lint-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff black mypy
+
+      - name: Run Ruff linter
+        run: ruff check src/ airflow/dags/ tests/
+
+      - name: Check code formatting with Black
+        run: black --check src/ airflow/dags/ tests/
+
+      - name: Run type checking with mypy
+        run: mypy src/ --ignore-missing-imports
+        continue-on-error: true  # Allow mypy failures initially
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-test-${{ hashFiles('requirements-dev.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-test-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run tests with coverage
+        run: |
+          pytest tests/ \
+            --cov=src \
+            --cov=airflow/dags \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --junitxml=test-results.xml
+        env:
+          MONGO_HOST: localhost
+          MONGO_PORT: "27017"
+          MONGO_USER: test
+          MONGO_PASSWORD: test
+          MONGO_DB: test_velib
+          DB_HOST: localhost
+          DB_NAME: test_airflow
+          DB_USER: test
+          DB_PASSWORD: test
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+        continue-on-error: true
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results.xml
+
+  dag-validation:
+    name: Validate Airflow DAGs
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Airflow
+        run: |
+          python -m pip install --upgrade pip
+          pip install apache-airflow==2.10.0 \
+            --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.10.0/constraints-3.10.txt"
+          pip install requests pymongo psycopg2-binary python-dotenv
+
+      - name: Initialize Airflow DB
+        run: |
+          export AIRFLOW_HOME=$(pwd)/airflow
+          airflow db init
+
+      - name: Validate DAGs
+        run: |
+          export AIRFLOW_HOME=$(pwd)/airflow
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+
+          # Check for import errors
+          python -c "
+          import sys
+          sys.path.insert(0, 'src')
+          sys.path.insert(0, 'airflow/dags')
+          from velib_etl_dag import dag
+          print(f'DAG ID: {dag.dag_id}')
+          print(f'Tasks: {[t.task_id for t in dag.tasks]}')
+          print('DAG validation successful!')
+          "
+
+  docker-build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: [test, dag-validation]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Validate docker-compose
+        run: |
+          docker compose -f docker-compose.yaml config --quiet
+
+      - name: Build test (no push)
+        run: |
+          # Pull images to validate docker-compose is correct
+          docker compose -f docker-compose.yaml pull --ignore-pull-failures || true
+          echo "Docker Compose configuration is valid"
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install security tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit safety
+
+      - name: Run Bandit security scan
+        run: bandit -r src/ airflow/dags/ -ll -ii
+        continue-on-error: true
+
+      - name: Check dependencies for vulnerabilities
+        run: safety check -r requirements.txt --ignore 70612
+        continue-on-error: true
+
+  # Summary job that other jobs can depend on
+  ci-success:
+    name: CI Success
+    runs-on: ubuntu-latest
+    needs: [lint, test, dag-validation, docker-build, security-scan]
+    if: always()
+    steps:
+      - name: Check all jobs passed
+        run: |
+          if [[ "${{ needs.lint.result }}" != "success" ]] || \
+             [[ "${{ needs.test.result }}" != "success" ]] || \
+             [[ "${{ needs.dag-validation.result }}" != "success" ]] || \
+             [[ "${{ needs.docker-build.result }}" != "success" ]]; then
+            echo "One or more required jobs failed"
+            exit 1
+          fi
+          echo "All CI checks passed!"
