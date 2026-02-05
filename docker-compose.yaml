@@ -105,7 +105,8 @@ services:
       - -c
       - |
         mkdir -p /opt/airflow/logs
-        chown -R "${AIRFLOW_UID:-50000}:0" /opt/airflow/logs
+        chown -R "${AIRFLOW_UID:-50000}:0" /opt/airflow/{logs,dags,plugins}
+        chmod -R 775 /opt/airflow/{logs,dags,plugins}
 
         airflow db migrate
         airflow users create \
