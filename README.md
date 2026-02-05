@@ -2,6 +2,10 @@
 
 Pipeline ETL (Extract, Transform, Load) pour les données temps réel du système de vélos en libre-service Velib' de Paris.
 
+## Auteurs
+
+Clément TRENS, Killian PAVY, Rémy LOURON
+
 ## Architecture
 
 ```mermaid
@@ -307,7 +311,3 @@ https://data.opendatasoft.com/api/records/1.0/search/?dataset=velib-disponibilit
 ## License
 
 Ce projet est développé dans le cadre d'un cours à l'École des Mines.
-
-## Auteur
-
-Clément TRENS, Killian PAVY, Rémy LOURON - École des Mines - S10 Data
