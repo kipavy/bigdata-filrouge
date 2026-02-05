@@ -2,7 +2,7 @@
 set -e
 
 # ============================================
-# Bidata Velib ETL - Deployment Script
+# Bigdata Velib ETL - Deployment Script
 # ============================================
 
 # Colors for output
@@ -184,7 +184,7 @@ rollback() {
 
 # Main deployment flow
 main() {
-    log_info "Starting Bidata Velib ETL deployment..."
+    log_info "Starting Bigdata Velib ETL deployment..."
 
     check_prerequisites
     pull_latest

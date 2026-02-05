@@ -4,7 +4,7 @@
 
 # Default target
 help:
-	@echo "Bidata Velib ETL Pipeline - Available commands:"
+	@echo "Bigdata Velib ETL Pipeline - Available commands:"
 	@echo ""
 	@echo "Development:"
 	@echo "  make install       Install production dependencies"

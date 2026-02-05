@@ -20,21 +20,21 @@ flowchart TB
 
 ## Stack Technique
 
-| Composant | Technologie | Version |
-|-----------|-------------|---------|
-| Orchestration | Apache Airflow | 2.10.0 |
-| Data Lake | MongoDB | 8.2 |
-| Data Warehouse | PostgreSQL | 18.1 |
-| Message Broker | Redis | 7.2 |
-| Visualisation | Grafana | 10.2.3 |
-| Logs | Loki + Promtail | 2.9.3 |
-| Langage | Python | 3.10+ |
-| Conteneurisation | Docker Compose | - |
+| Composant        | Technologie     | Version |
+| ---------------- | --------------- | ------- |
+| Orchestration    | Apache Airflow  | 2.10.0  |
+| Data Lake        | MongoDB         | 8.2     |
+| Data Warehouse   | PostgreSQL      | 18.1    |
+| Message Broker   | Redis           | 7.2     |
+| Visualisation    | Grafana         | 10.2.3  |
+| Logs             | Loki + Promtail | 2.9.3   |
+| Langage          | Python          | 3.10+   |
+| Conteneurisation | Docker Compose  | -       |
 
 ## Structure du Projet
 
 ```
-bidata/
+bigdata/
 ├── airflow/
 │   ├── dags/
 │   │   └── velib_etl_dag.py      # DAG principal
@@ -73,18 +73,21 @@ bidata/
 ### Démarrage Rapide
 
 1. **Cloner le repository**
+
    ```bash
    git clone https://github.com/kipavy/bigdata-filrouge
    cd bigdata-filrouge
    ```
 
 2. **Configurer l'environnement**
+
    ```bash
    cp .env.example .env
    # Éditer .env avec vos paramètres
    ```
 
 3. **Lancer les services**
+
    ```bash
    make docker-up
    # ou
@@ -99,16 +102,16 @@ bidata/
 
 ### Variables d'Environnement
 
-| Variable | Description | Défaut |
-|----------|-------------|--------|
-| `POSTGRES_USER` | Utilisateur PostgreSQL | airflow |
-| `POSTGRES_PASSWORD` | Mot de passe PostgreSQL | - |
-| `POSTGRES_DB` | Base de données | airflow |
-| `MONGO_INITDB_ROOT_USERNAME` | Utilisateur MongoDB | mongo |
-| `MONGO_INITDB_ROOT_PASSWORD` | Mot de passe MongoDB | - |
-| `MONGO_DB` | Base MongoDB | velib_datalake |
-| `VELIB_API_BASE_URL` | URL API Velib | OpenDataSoft |
-| `AIRFLOW__CORE__FERNET_KEY` | Clé de chiffrement Airflow | - |
+| Variable                     | Description                | Défaut         |
+| ---------------------------- | -------------------------- | -------------- |
+| `POSTGRES_USER`              | Utilisateur PostgreSQL     | airflow        |
+| `POSTGRES_PASSWORD`          | Mot de passe PostgreSQL    | -              |
+| `POSTGRES_DB`                | Base de données            | airflow        |
+| `MONGO_INITDB_ROOT_USERNAME` | Utilisateur MongoDB        | mongo          |
+| `MONGO_INITDB_ROOT_PASSWORD` | Mot de passe MongoDB       | -              |
+| `MONGO_DB`                   | Base MongoDB               | velib_datalake |
+| `VELIB_API_BASE_URL`         | URL API Velib              | OpenDataSoft   |
+| `AIRFLOW__CORE__FERNET_KEY`  | Clé de chiffrement Airflow | -              |
 
 ## Pipeline ETL
 
@@ -117,6 +120,7 @@ bidata/
 Récupère les données temps réel de l'API Velib (OpenDataSoft) et les stocke dans MongoDB.
 
 **Données collectées:**
+
 - Code et nom des stations
 - Coordonnées GPS
 - Capacité totale
@@ -237,6 +241,7 @@ pytest tests/test_dag_integrity.py -v
 ### Grafana
 
 Dashboard préconfigurés pour visualiser:
+
 - Disponibilité des vélos par station
 - Tendances d'utilisation
 - Logs des pipelines
@@ -244,6 +249,7 @@ Dashboard préconfigurés pour visualiser:
 ### Loki + Promtail
 
 Agrégation centralisée des logs Airflow avec:
+
 - Parsing multiline
 - Extraction de métadonnées (timestamp, task, level)
 - Filtrage par label
@@ -273,11 +279,13 @@ Déclenchée sur push vers `main` ou tag `v*`:
 **Source:** [OpenDataSoft - Velib Métropole](https://data.opendatasoft.com/)
 
 **Endpoint:**
+
 ```
 https://data.opendatasoft.com/api/records/1.0/search/?dataset=velib-disponibilite-en-temps-reel
 ```
 
 **Champs utilisés:**
+
 - `stationcode` - Identifiant unique
 - `name` - Nom de la station
 - `coordonnees_geo` - Latitude, Longitude

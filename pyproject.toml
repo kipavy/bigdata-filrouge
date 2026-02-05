@@ -1,5 +1,5 @@
 [project]
-name = "bidata-velib"
+name = "bigdata-velib"
 version = "1.0.0"
 description = "ETL pipeline for Velib bike sharing data"
 requires-python = ">=3.10"
