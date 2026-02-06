@@ -2,6 +2,7 @@
 Velib ETL DAG - Extract from API, store in MongoDB, transform and load to PostgreSQL
 Scheduled to run every 5 minutes
 """
+
 from datetime import datetime, timedelta
 
 from airflow import DAG
@@ -27,6 +28,7 @@ default_args = {
 def extract_velib_data():
     """Extract data from Velib API and store in MongoDB."""
     from getApi import extract_velib_data as extract
+
     return extract()
 
 
@@ -34,6 +36,7 @@ def extract_velib_data():
 def transform_and_load(extraction_result: dict):
     """Transform data from MongoDB and load to PostgreSQL."""
     from traitement import transform_and_load as transform_load
+
     return transform_load()
 
 
@@ -46,7 +49,6 @@ with DAG(
     catchup=False,
     tags=["velib", "etl", "bigdata"],
 ) as dag:
-
     # Define task dependencies using TaskFlow API
     extraction_result = extract_velib_data()
     transform_and_load(extraction_result)

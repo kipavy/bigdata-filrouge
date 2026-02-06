@@ -1,6 +1,7 @@
 """
 Tests for traitement.py - Data transformation module.
 """
+
 import os
 import sys
 from datetime import datetime

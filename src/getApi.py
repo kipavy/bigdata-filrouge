@@ -1,6 +1,7 @@
 """
 getApi.py - Extract data from Velib OpenDataSoft API and store in MongoDB (Data Lake)
 """
+
 import os
 from datetime import datetime
 
@@ -25,11 +26,7 @@ def get_mongo_client():
 
 def fetch_velib_data(rows=10000):
     """Fetch real-time Velib data from OpenDataSoft API."""
-    params = {
-        "dataset": DATASET,
-        "rows": rows,
-        "format": "json"
-    }
+    params = {"dataset": DATASET, "rows": rows, "format": "json"}
 
     response = requests.get(VELIB_API_URL, params=params, timeout=60)
     response.raise_for_status()
@@ -47,7 +44,7 @@ def save_to_mongodb(data: dict, collection_name: str):
         "data": data,
         "ingested_at": datetime.utcnow(),
         "source": "velib_opendatasoft_api",
-        "records_count": data.get("nhits", 0)
+        "records_count": data.get("nhits", 0),
     }
 
     result = collection.insert_one(document)
@@ -75,7 +72,7 @@ def extract_velib_data():
     return {
         "document_id": doc_id,
         "extraction_time": datetime.utcnow().isoformat(),
-        "stations_count": records_count
+        "stations_count": records_count,
     }
 
 

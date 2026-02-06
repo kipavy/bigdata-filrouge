@@ -1,6 +1,7 @@
 """
 Pytest configuration and fixtures for Velib ETL tests.
 """
+
 import os
 import sys
 from datetime import datetime

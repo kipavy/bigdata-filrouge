@@ -1,6 +1,7 @@
 """
 Tests for getApi.py - Data extraction module.
 """
+
 import os
 import sys
 from unittest.mock import MagicMock, patch

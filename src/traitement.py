@@ -1,6 +1,7 @@
 """
 traitement.py - Transform data from MongoDB and load into PostgreSQL
 """
+
 import os
 from datetime import datetime
 
@@ -27,7 +28,7 @@ def get_postgres_connection():
         database=os.getenv("DB_NAME", "airflow"),
         user=os.getenv("DB_USER", "airflow"),
         password=os.getenv("DB_PASSWORD", "airflow"),
-        port=5432
+        port=5432,
     )
 
 
@@ -87,9 +88,7 @@ def get_latest_from_mongodb():
     collection = db["velib_raw"]
 
     # Get the most recent document
-    document = collection.find_one(
-        sort=[("ingested_at", -1)]
-    )
+    document = collection.find_one(sort=[("ingested_at", -1)])
     client.close()
     return document
 
@@ -114,15 +113,17 @@ def transform_data(raw_data: dict) -> tuple:
         lon = coords[1] if len(coords) > 1 else 0
 
         # Station info
-        stations.append({
-            "station_id": station_id,
-            "name": fields.get("name", ""),
-            "latitude": lat,
-            "longitude": lon,
-            "capacity": fields.get("capacity", 0),
-            "arrondissement": fields.get("nom_arrondissement_communes", ""),
-            "code_insee": fields.get("code_insee_commune", "")
-        })
+        stations.append(
+            {
+                "station_id": station_id,
+                "name": fields.get("name", ""),
+                "latitude": lat,
+                "longitude": lon,
+                "capacity": fields.get("capacity", 0),
+                "arrondissement": fields.get("nom_arrondissement_communes", ""),
+                "code_insee": fields.get("code_insee_commune", ""),
+            }
+        )
 
         # Parse last_reported timestamp
         duedate = fields.get("duedate")
@@ -135,17 +136,19 @@ def transform_data(raw_data: dict) -> tuple:
             last_reported = datetime.utcnow()
 
         # Availability info
-        availability.append({
-            "station_id": station_id,
-            "num_bikes_available": fields.get("numbikesavailable", 0),
-            "num_bikes_mechanical": fields.get("mechanical", 0),
-            "num_bikes_ebike": fields.get("ebike", 0),
-            "num_docks_available": fields.get("numdocksavailable", 0),
-            "is_installed": fields.get("is_installed", "NON") == "OUI",
-            "is_renting": fields.get("is_renting", "NON") == "OUI",
-            "is_returning": fields.get("is_returning", "NON") == "OUI",
-            "last_reported": last_reported
-        })
+        availability.append(
+            {
+                "station_id": station_id,
+                "num_bikes_available": fields.get("numbikesavailable", 0),
+                "num_bikes_mechanical": fields.get("mechanical", 0),
+                "num_bikes_ebike": fields.get("ebike", 0),
+                "num_docks_available": fields.get("numdocksavailable", 0),
+                "is_installed": fields.get("is_installed", "NON") == "OUI",
+                "is_renting": fields.get("is_renting", "NON") == "OUI",
+                "is_returning": fields.get("is_returning", "NON") == "OUI",
+                "last_reported": last_reported,
+            }
+        )
 
     return stations, availability
 
@@ -174,8 +177,16 @@ def load_stations_to_postgres(stations: list):
     """
 
     values = [
-        (s["station_id"], s["name"], s["latitude"], s["longitude"],
-         s["capacity"], s["arrondissement"], s["code_insee"], datetime.utcnow())
+        (
+            s["station_id"],
+            s["name"],
+            s["latitude"],
+            s["longitude"],
+            s["capacity"],
+            s["arrondissement"],
+            s["code_insee"],
+            datetime.utcnow(),
+        )
         for s in stations
     ]
 
@@ -215,7 +226,7 @@ def load_availability_to_postgres(availability: list):
             a["is_installed"],
             a["is_renting"],
             a["is_returning"],
-            a["last_reported"]
+            a["last_reported"],
         )
         for a in availability
     ]
@@ -261,7 +272,7 @@ def transform_and_load():
     result = {
         "transformation_time": datetime.utcnow().isoformat(),
         "stations_loaded": stations_count,
-        "availability_records_loaded": availability_count
+        "availability_records_loaded": availability_count,
     }
 
     print(f"Transformation and loading complete: {result}")
