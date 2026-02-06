@@ -120,7 +120,10 @@ class TestLoadStationsToPostgres:
             }
         ]
 
-        with patch("traitement.get_postgres_connection") as mock_conn:
+        with (
+            patch("traitement.get_postgres_connection") as mock_conn,
+            patch("traitement.execute_values") as mock_exec,
+        ):
             mock_connection = MagicMock()
             mock_cursor = MagicMock()
             mock_conn.return_value = mock_connection
@@ -129,6 +132,7 @@ class TestLoadStationsToPostgres:
             result = load_stations_to_postgres(stations)
 
             assert result == 1
+            mock_exec.assert_called_once()
             mock_connection.commit.assert_called_once()
             mock_cursor.close.assert_called_once()
             mock_connection.close.assert_called_once()
@@ -158,7 +162,10 @@ class TestLoadAvailabilityToPostgres:
             }
         ]
 
-        with patch("traitement.get_postgres_connection") as mock_conn:
+        with (
+            patch("traitement.get_postgres_connection") as mock_conn,
+            patch("traitement.execute_values") as mock_exec,
+        ):
             mock_connection = MagicMock()
             mock_cursor = MagicMock()
             mock_conn.return_value = mock_connection
@@ -167,6 +174,7 @@ class TestLoadAvailabilityToPostgres:
             result = load_availability_to_postgres(availability)
 
             assert result == 1
+            mock_exec.assert_called_once()
             mock_connection.commit.assert_called_once()
 
 
