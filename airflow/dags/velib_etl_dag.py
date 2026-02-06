@@ -11,8 +11,8 @@ from airflow.decorators import task
 
 # Declare datasets for data-aware scheduling
 MONGODB_VELIB_RAW = Dataset("mongodb://velib_datalake/velib_raw")
-POSTGRES_STATIONS = Dataset("postgresql://airflow/stations")
-POSTGRES_AVAILABILITY = Dataset("postgresql://airflow/station_availability")
+POSTGRES_STATIONS = Dataset("postgres://postgres/airflow/public/stations")
+POSTGRES_AVAILABILITY = Dataset("postgres://postgres/airflow/public/station_availability")
 
 default_args = {
     "owner": "airflow",

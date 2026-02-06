@@ -283,7 +283,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n  ingested_at as time,\n  SUM(num_bikes_available) as \"Bikes Available\",\n  SUM(num_bikes_mechanical) as \"Mechanical\",\n  SUM(num_bikes_ebike) as \"E-Bikes\"\nFROM station_availability\nWHERE ingested_at >= NOW() - INTERVAL '24 hours'\nGROUP BY ingested_at\nORDER BY ingested_at;",
+          "rawSql": "SELECT \n  ingested_at as time,\n  SUM(num_bikes_available) as \"Bikes Available\",\n  SUM(num_bikes_mechanical) as \"Mechanical\",\n  SUM(num_bikes_ebike) as \"E-Bikes\"\nFROM station_availability\nWHERE $__timeFilter(ingested_at)\nGROUP BY ingested_at\nORDER BY ingested_at;",
           "refId": "A"
         }
       ],
@@ -364,7 +364,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n  ingested_at as time,\n  SUM(num_docks_available) as \"Docks Available\"\nFROM station_availability\nWHERE ingested_at >= NOW() - INTERVAL '24 hours'\nGROUP BY ingested_at\nORDER BY ingested_at;",
+          "rawSql": "SELECT \n  ingested_at as time,\n  SUM(num_docks_available) as \"Docks Available\"\nFROM station_availability\nWHERE $__timeFilter(ingested_at)\nGROUP BY ingested_at\nORDER BY ingested_at;",
           "refId": "A"
         }
       ],

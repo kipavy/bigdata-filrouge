@@ -57,6 +57,10 @@ bigdata/
 │   │   └── provisioning/          # Dashboards et datasources
 │   └── promtail/
 │       └── promtail-config.yml    # Configuration logs
+├── sql/
+│   ├── init_schema.sql            # Création des tables et index
+│   ├── upsert_stations.sql        # Upsert données stations
+│   └── insert_availability.sql    # Insertion disponibilité
 ├── .github/workflows/
 │   ├── ci.yml                     # Pipeline CI
 │   └── cd.yml                     # Pipeline CD
@@ -299,6 +303,62 @@ https://data.opendatasoft.com/api/records/1.0/search/?dataset=velib-disponibilit
 - `ebike` - Vélos électriques
 - `numdocksavailable` - Bornes disponibles
 - `is_installed` / `is_renting` / `is_returning` - État opérationnel
+
+## Résultats et Conclusions
+
+### Données collectées
+
+Le pipeline collecte en temps réel les données de l'ensemble des stations Velib' Métropole (~1 500 stations) toutes les 5 minutes, soit environ 288 snapshots par jour. Les données sont stockées brutes dans MongoDB (Data Lake) puis transformées et chargées dans PostgreSQL (Data Warehouse) selon un modèle en étoile avec deux tables : `stations` (dimension) et `station_availability` (fait).
+
+### Indicateurs exploitables
+
+Les données structurées dans PostgreSQL permettent d'analyser :
+
+- **Taux d'occupation par station** : ratio vélos disponibles / capacité totale, identifiant les stations saturées ou vides
+- **Répartition mécaniques vs électriques** : proportion de chaque type de vélo par station et par arrondissement
+- **Disponibilité temporelle** : évolution de la disponibilité au cours de la journée (pics matin/soir, creux nocturnes)
+- **Stations hors service** : suivi des stations non opérationnelles via les champs `is_installed`, `is_renting`, `is_returning`
+- **Couverture géographique** : analyse spatiale par arrondissement et code INSEE
+
+### Exemples de requêtes analytiques
+
+```sql
+-- Top 10 des stations les plus sollicitées (faible disponibilité moyenne)
+SELECT s.name, s.arrondissement,
+       AVG(sa.num_bikes_available) AS avg_bikes,
+       s.capacity
+FROM stations s
+JOIN station_availability sa ON s.station_id = sa.station_id
+GROUP BY s.station_id, s.name, s.arrondissement, s.capacity
+ORDER BY avg_bikes ASC
+LIMIT 10;
+
+-- Disponibilité moyenne par arrondissement
+SELECT s.arrondissement,
+       COUNT(DISTINCT s.station_id) AS nb_stations,
+       AVG(sa.num_bikes_available) AS avg_bikes,
+       AVG(sa.num_docks_available) AS avg_docks
+FROM stations s
+JOIN station_availability sa ON s.station_id = sa.station_id
+GROUP BY s.arrondissement
+ORDER BY avg_bikes DESC;
+```
+
+### Visualisation
+![](results.png)
+
+Les dashboards Grafana permettent de visualiser en temps réel :
+
+- La disponibilité des vélos par station sur une carte
+- Les tendances d'utilisation sous forme de séries temporelles
+- Les logs du pipeline ETL pour le monitoring opérationnel
+
+### Conclusions
+
+- L'architecture ETL mise en place assure une collecte fiable et continue des données Velib' en temps réel
+- Le modèle de données en étoile (stations + disponibilité) permet des analyses temporelles et géographiques performantes
+- Le monitoring via Grafana/Loki offre une visibilité complète sur la santé du pipeline
+- Cette plateforme constitue une base solide pour des analyses prédictives (prédiction de la demande, optimisation du redéploiement des vélos)
 
 ## Contribuer
 

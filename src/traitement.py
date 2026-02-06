@@ -4,10 +4,18 @@ traitement.py - Transform data from MongoDB and load into PostgreSQL
 
 import os
 from datetime import datetime
+from pathlib import Path
 
 import psycopg2
 from psycopg2.extras import execute_values
 from pymongo import MongoClient
+
+SQL_DIR = Path(__file__).resolve().parent.parent / "sql"
+
+
+def load_sql(filename: str) -> str:
+    """Load a SQL file from the sql/ directory."""
+    return (SQL_DIR / filename).read_text()
 
 
 def get_mongo_client():
@@ -37,43 +45,7 @@ def init_postgres_tables():
     conn = get_postgres_connection()
     cur = conn.cursor()
 
-    # Create stations table
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS stations (
-            station_id VARCHAR(20) PRIMARY KEY,
-            name VARCHAR(255),
-            latitude DECIMAL(10, 8),
-            longitude DECIMAL(11, 8),
-            capacity INTEGER,
-            arrondissement VARCHAR(100),
-            code_insee VARCHAR(10),
-            created_at TIMESTAMP DEFAULT NOW(),
-            updated_at TIMESTAMP DEFAULT NOW()
-        );
-    """)
-
-    # Create station_availability table
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS station_availability (
-            id SERIAL PRIMARY KEY,
-            station_id VARCHAR(20) REFERENCES stations(station_id),
-            num_bikes_available INTEGER,
-            num_bikes_mechanical INTEGER,
-            num_bikes_ebike INTEGER,
-            num_docks_available INTEGER,
-            is_installed BOOLEAN,
-            is_renting BOOLEAN,
-            is_returning BOOLEAN,
-            last_reported TIMESTAMP,
-            ingested_at TIMESTAMP DEFAULT NOW()
-        );
-    """)
-
-    # Create index for time-series queries
-    cur.execute("""
-        CREATE INDEX IF NOT EXISTS idx_availability_station_time
-        ON station_availability(station_id, ingested_at);
-    """)
+    cur.execute(load_sql("init_schema.sql"))
 
     conn.commit()
     cur.close()
@@ -162,19 +134,7 @@ def load_stations_to_postgres(stations: list):
     conn = get_postgres_connection()
     cur = conn.cursor()
 
-    # Upsert stations (insert or update on conflict)
-    query = """
-        INSERT INTO stations (station_id, name, latitude, longitude, capacity, arrondissement, code_insee, updated_at)
-        VALUES %s
-        ON CONFLICT (station_id) DO UPDATE SET
-            name = EXCLUDED.name,
-            latitude = EXCLUDED.latitude,
-            longitude = EXCLUDED.longitude,
-            capacity = EXCLUDED.capacity,
-            arrondissement = EXCLUDED.arrondissement,
-            code_insee = EXCLUDED.code_insee,
-            updated_at = NOW()
-    """
+    query = load_sql("upsert_stations.sql")
 
     values = [
         (
@@ -209,12 +169,7 @@ def load_availability_to_postgres(availability: list):
     conn = get_postgres_connection()
     cur = conn.cursor()
 
-    query = """
-        INSERT INTO station_availability
-        (station_id, num_bikes_available, num_bikes_mechanical, num_bikes_ebike,
-         num_docks_available, is_installed, is_renting, is_returning, last_reported)
-        VALUES %s
-    """
+    query = load_sql("insert_availability.sql")
 
     values = [
         (

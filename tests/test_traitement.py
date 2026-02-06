@@ -123,6 +123,7 @@ class TestLoadStationsToPostgres:
         with (
             patch("traitement.get_postgres_connection") as mock_conn,
             patch("traitement.execute_values") as mock_exec,
+            patch("traitement.load_sql", return_value="INSERT INTO stations VALUES %s"),
         ):
             mock_connection = MagicMock()
             mock_cursor = MagicMock()
@@ -165,6 +166,10 @@ class TestLoadAvailabilityToPostgres:
         with (
             patch("traitement.get_postgres_connection") as mock_conn,
             patch("traitement.execute_values") as mock_exec,
+            patch(
+                "traitement.load_sql",
+                return_value="INSERT INTO station_availability VALUES %s",
+            ),
         ):
             mock_connection = MagicMock()
             mock_cursor = MagicMock()
