@@ -47,11 +47,6 @@ ignore = [
 [tool.ruff.lint.isort]
 known-first-party = ["src", "getApi", "traitement"]
 
-[tool.black]
-line-length = 100
-target-version = ["py310"]
-include = '\.pyi?$'
-
 [tool.mypy]
 python_version = "3.10"
 warn_return_any = true

@@ -8,7 +8,7 @@ repos:
         args: [--unsafe]
       - id: check-json
       - id: check-added-large-files
-        args: ['--maxkb=1000']
+        args: ["--maxkb=1000"]
       - id: check-merge-conflict
       - id: detect-private-key
 
@@ -18,12 +18,6 @@ repos:
       - id: ruff
         args: [--fix]
       - id: ruff-format
-
-  - repo: https://github.com/psf/black
-    rev: 24.1.1
-    hooks:
-      - id: black
-        language_version: python3.10
 
   - repo: local
     hooks:

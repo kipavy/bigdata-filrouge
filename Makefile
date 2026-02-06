@@ -10,7 +10,7 @@ help:
 	@echo "  make install       Install production dependencies"
 	@echo "  make install-dev   Install development dependencies"
 	@echo "  make lint          Run linter (ruff)"
-	@echo "  make format        Format code with black"
+	@echo "  make format        Format code with ruff"
 	@echo "  make test          Run tests"
 	@echo "  make test-cov      Run tests with coverage report"
 	@echo "  make clean         Remove build artifacts"
@@ -40,11 +40,11 @@ install-dev:
 
 lint:
 	ruff check src/ airflow/dags/ tests/
-	black --check src/ airflow/dags/ tests/
+	ruff format --check src/ airflow/dags/ tests/
 
 format:
 	ruff check --fix src/ airflow/dags/ tests/
-	black src/ airflow/dags/ tests/
+	ruff format src/ airflow/dags/ tests/
 
 test:
 	PYTHONPATH=src:airflow/dags pytest tests/ -v
