@@ -6,6 +6,7 @@ import sys
 from unittest.mock import MagicMock, patch
 
 import pytest
+import requests
 import responses
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))

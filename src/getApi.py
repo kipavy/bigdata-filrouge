@@ -7,7 +7,6 @@ from datetime import datetime
 import requests
 from pymongo import MongoClient
 
-
 # API OpenDataSoft (plus fiable que smoove.pro)
 VELIB_API_URL = "https://data.opendatasoft.com/api/records/1.0/search/"
 DATASET = "velib-disponibilite-en-temps-reel@parisdata"
